@@ -22,7 +22,7 @@ use kernel::hil::gpio::{self, ClientWithValue, Configure, InterruptWithValue, Ou
 use kernel::hil::led::LedLow;
 use kernel::hil::screen::ScreenRotation;
 use kernel::platform::{KernelResources, SyscallDriverLookup};
-use kernel::scheduler::round_robin::RoundRobinSched;
+use kernel::scheduler::priority::PrioritySched;
 use kernel::{create_capability, debug, static_init};
 use stm32f412g::chip_specs::Stm32f412Specs;
 use stm32f412g::clocks::hsi::HSI_FREQUENCY_MHZ;
@@ -79,7 +79,7 @@ struct STM32F412GDiscovery {
     temperature: &'static TemperatureDriver,
     rng: &'static RngDriver,
 
-    scheduler: &'static RoundRobinSched<'static>,
+    scheduler: &'static PrioritySched,
     systick: cortexm4::systick::SysTick,
 }
 
@@ -117,7 +117,7 @@ impl
     type SyscallDriverLookup = Self;
     type SyscallFilter = ();
     type ProcessFault = ();
-    type Scheduler = RoundRobinSched<'static>;
+    type Scheduler = PrioritySched;
     type SchedulerTimer = cortexm4::systick::SysTick;
     type WatchDog = ();
     type ContextSwitchCallback = ();
@@ -886,8 +886,8 @@ unsafe fn start() -> (
     ));
     let _ = process_console.start();
 
-    let scheduler = components::sched::round_robin::RoundRobinComponent::new(&*addr_of!(PROCESSES))
-        .finalize(components::round_robin_component_static!(NUM_PROCS));
+    let scheduler = components::sched::priority::PriorityComponent::new(board_kernel)
+        .finalize(components::priority_component_static!());
 
     let stm32f412g = STM32F412GDiscovery {
         console,
