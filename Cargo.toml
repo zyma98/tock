@@ -46,6 +46,7 @@ members = [
     "boards/redboard_redv",
     "boards/stm32f3discovery",
     "boards/stm32f412gdiscovery",
+    "boards/stm32f412gdiscovery-restart",
     "boards/stm32f412gdiscovery-priority-sched",
     "boards/stm32f412gdiscovery-kernel-irq",
     "boards/stm32f429idiscovery",
